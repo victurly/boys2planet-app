@@ -5,28 +5,34 @@ import matplotlib.pyplot as plt
 # โหลดข้อมูล
 @st.cache_data
 def load_data():
-    df = pd.read_csv('boys2planet_scores.csv')
+    df = pd.read_csv("scores.csv")
     return df
 
 df = load_data()
 
-# แสดงหัวเว็บ
-st.title('วิเคราะห์คะแนนผู้เข้าแข่งขัน Boys2Planet')
+# หัวเรื่องเว็บ
+st.title("📊 วิเคราะห์คะแนนผู้เข้าแข่งขัน Boys2Planet")
 
-# ตัวเลือกผู้เข้าแข่งขันใน Sidebar
-contestant = st.sidebar.selectbox('เลือกผู้เข้าแข่งขัน', df['name'].unique())
+# ตัวเลือกผู้เข้าแข่งขัน
+contestants = df['name'].unique()
+selected = st.sidebar.selectbox("เลือกผู้เข้าแข่งขัน", contestants)
 
-# กรองข้อมูลผู้เข้าแข่งขัน
-df_contestant = df[df['name'] == contestant]
+# แสดงตารางคะแนน
+filtered = df[df['name'] == selected]
+st.subheader(f"คะแนนของ {selected}")
+st.dataframe(filtered, use_container_width=True)
 
-# แสดงข้อมูลคะแนน
-st.write(f"คะแนนของ {contestant}")
-st.dataframe(df_contestant)
-
-# สร้างกราฟแสดงคะแนน
+# วาดกราฟคะแนนรายสัปดาห์
+st.subheader(f"กราฟคะแนนของ {selected} ตามสัปดาห์")
 fig, ax = plt.subplots()
-ax.plot(df_contestant['week'], df_contestant['score'], marker='o')
-ax.set_xlabel('สัปดาห์')
-ax.set_ylabel('คะแนน')
-ax.set_title(f'คะแนนรายสัปดาห์ของ {contestant}')
+ax.plot(filtered['week'], filtered['score'], marker='o', color='skyblue', linewidth=2)
+ax.set_xlabel("สัปดาห์")
+ax.set_ylabel("คะแนน")
+ax.set_title(f"แนวโน้มคะแนนของ {selected}")
 st.pyplot(fig)
+
+# วิเคราะห์เพิ่ม
+st.markdown("### สรุปคะแนน")
+st.write(f"คะแนนเฉลี่ย: **{filtered['score'].mean():.2f}**")
+st.write(f"คะแนนสูงสุด: **{filtered['score'].max()}**")
+st.write(f"คะแนนต่ำสุด: **{filtered['score'].min()}**")
