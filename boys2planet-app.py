@@ -2,37 +2,31 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# โหลดข้อมูล
+# โหลดข้อมูลจาก CSV
 @st.cache_data
 def load_data():
-    df = pd.read_csv("scores.csv")
-    return df
+    return pd.read_csv("scores.csv")
 
 df = load_data()
 
-# หัวเรื่องเว็บ
+# หัวเว็บ
 st.title("📊 วิเคราะห์คะแนนผู้เข้าแข่งขัน Boys2Planet")
 
-# ตัวเลือกผู้เข้าแข่งขัน
-contestants = df['name'].unique()
-selected = st.sidebar.selectbox("เลือกผู้เข้าแข่งขัน", contestants)
+# เลือกชื่อผู้เข้าแข่งขัน
+contestant = st.sidebar.selectbox("เลือกผู้เข้าแข่งขัน", df["name"].unique())
+
+# กรองข้อมูลเฉพาะคนนั้น
+filtered = df[df["name"] == contestant]
 
 # แสดงตารางคะแนน
-filtered = df[df['name'] == selected]
-st.subheader(f"คะแนนของ {selected}")
-st.dataframe(filtered, use_container_width=True)
+st.subheader(f"คะแนนของ {contestant}")
+st.dataframe(filtered)
 
-# วาดกราฟคะแนนรายสัปดาห์
-st.subheader(f"กราฟคะแนนของ {selected} ตามสัปดาห์")
+# วาดกราฟ
+st.subheader(f"กราฟคะแนนรายสัปดาห์ของ {contestant}")
 fig, ax = plt.subplots()
-ax.plot(filtered['week'], filtered['score'], marker='o', color='skyblue', linewidth=2)
+ax.plot(filtered["week"], filtered["score"], marker="o", color="orange")
 ax.set_xlabel("สัปดาห์")
 ax.set_ylabel("คะแนน")
-ax.set_title(f"แนวโน้มคะแนนของ {selected}")
+ax.set_title(f"คะแนนของ {contestant}")
 st.pyplot(fig)
-
-# วิเคราะห์เพิ่ม
-st.markdown("### สรุปคะแนน")
-st.write(f"คะแนนเฉลี่ย: **{filtered['score'].mean():.2f}**")
-st.write(f"คะแนนสูงสุด: **{filtered['score'].max()}**")
-st.write(f"คะแนนต่ำสุด: **{filtered['score'].min()}**")
